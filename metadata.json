@@ -1,0 +1,7 @@
+{
+  "name": "Shadow Companion",
+  "description": "A full-stack style AI platform featuring a personal voice companion (Gemini Live), AI news tracker, social feed, and productivity tools.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
