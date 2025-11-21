@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
@@ -6,22 +7,45 @@ import { Feed } from './pages/Feed';
 import { Updates } from './pages/Updates';
 import { Productivity } from './pages/Productivity';
 import { Automation } from './pages/Automation';
-import { AppProvider } from './context/AppContext';
+import { Login } from './pages/Login';
+import { AppProvider, useApp } from './context/AppContext';
+
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useApp();
+  if (!user) {
+    return <Login />;
+  }
+  return <Layout>{children}</Layout>;
+};
+
+const AppRoutes: React.FC = () => {
+    return (
+        <Routes>
+            <Route path="/" element={
+                <ProtectedRoute><Companion /></ProtectedRoute>
+            } />
+            <Route path="/feed" element={
+                <ProtectedRoute><Feed /></ProtectedRoute>
+            } />
+            <Route path="/updates" element={
+                <ProtectedRoute><Updates /></ProtectedRoute>
+            } />
+            <Route path="/productivity" element={
+                <ProtectedRoute><Productivity /></ProtectedRoute>
+            } />
+            <Route path="/automation" element={
+                <ProtectedRoute><Automation /></ProtectedRoute>
+            } />
+            <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+    )
+}
 
 const App: React.FC = () => {
   return (
     <AppProvider>
       <HashRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Companion />} />
-            <Route path="/feed" element={<Feed />} />
-            <Route path="/updates" element={<Updates />} />
-            <Route path="/productivity" element={<Productivity />} />
-            <Route path="/automation" element={<Automation />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Layout>
+        <AppRoutes />
       </HashRouter>
     </AppProvider>
   );

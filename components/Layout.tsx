@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -7,10 +8,12 @@ import {
   CheckSquare, 
   Zap, 
   User,
-  Menu,
-  X,
   MicOff,
-  Radio
+  Home,
+  Settings,
+  Cpu,
+  Radio,
+  LogOut
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLiveSession } from '../hooks/useLiveSession';
@@ -22,150 +25,196 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
   
   // Global Voice State from Context
-  const { isVoiceActive, setVoiceActive } = useApp();
+  const { isVoiceActive, setVoiceActive, user, logout } = useApp();
   
   // Initialize session at the Layout level so it persists across route changes
   const { status, volume } = useLiveSession(isVoiceActive);
 
-  const navItems = [
-    { icon: User, label: 'Companion & Settings', path: '/' },
-    { icon: Activity, label: 'Updates', path: '/updates' },
-    { icon: Users, label: 'Social Feed', path: '/feed' },
-    { icon: CheckSquare, label: 'Productivity', path: '/productivity' },
-    { icon: Zap, label: 'Automation', path: '/automation' },
+  const desktopNavItems = [
+    { icon: User, label: 'COMMAND', path: '/' },
+    { icon: Activity, label: 'INTEL', path: '/updates' },
+    { icon: Users, label: 'NETWORK', path: '/feed' },
+    { icon: CheckSquare, label: 'MISSIONS', path: '/productivity' },
+    { icon: Zap, label: 'PROTOCOLS', path: '/automation' },
+  ];
+
+  // Mobile Nav
+  const mobileNavItems = [
+    { icon: Activity, label: 'NEWS', path: '/updates' }, 
+    { icon: CheckSquare, label: 'TASKS', path: '/productivity' }, 
+    { icon: Zap, label: 'BOTS', path: '/automation' }, 
+    { icon: User, label: 'HOME', path: '/' },
   ];
 
   return (
-    <div className="min-h-screen bg-shadow-950 text-shadow-100 font-sans flex overflow-hidden">
+    <div className="min-h-screen bg-shadow-950 text-shadow-100 font-sans flex overflow-hidden pb-20 md:pb-0 relative selection:bg-accent-500/30 selection:text-accent-400">
       
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-shadow-900 border-r border-shadow-800 p-4">
-        <div className="flex items-center gap-3 mb-8 px-2">
-          <div className="w-8 h-8 rounded-lg bg-accent-600 flex items-center justify-center">
-            <div className="w-4 h-4 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
-          </div>
-          <h1 className="text-xl font-bold tracking-tight">Shadow</h1>
-        </div>
+      {/* Background Tech Grid */}
+      <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-20 pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-gradient-to-b from-shadow-950 via-transparent to-shadow-950 z-0 opacity-80 pointer-events-none" />
 
-        {/* Active Call Widget in Sidebar */}
-        <div className="mb-6 p-4 rounded-xl bg-shadow-950 border border-shadow-800 relative overflow-hidden">
-           <div className="flex items-center justify-between mb-3">
-             <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${status === 'connected' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-                <span className="text-xs font-bold text-shadow-400">VOICE UPLINK</span>
-             </div>
-             <Radio size={14} className={status === 'connected' ? 'text-accent-500' : 'text-shadow-600'} />
-           </div>
-           
-           {isVoiceActive ? (
-               <div className="h-12 mb-3">
-                   <Visualizer isActive={status === 'connected'} volume={volume} />
-               </div>
-           ) : (
-               <p className="text-xs text-shadow-500 mb-3">Disconnected</p>
-           )}
-
-           <button 
-             onClick={() => setVoiceActive(!isVoiceActive)}
-             className={`w-full py-2 rounded-lg flex items-center justify-center gap-2 text-sm font-medium transition-all ${
-                 isVoiceActive 
-                 ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20' 
-                 : 'bg-accent-600 text-white hover:bg-accent-500'
-             }`}
-           >
-             {isVoiceActive ? <><MicOff size={16} /> End Session</> : <><Mic size={16} /> Connect</>}
-           </button>
-        </div>
-
-        <nav className="flex-1 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
-                location.pathname === item.path
-                  ? 'bg-accent-600/10 text-accent-500'
-                  : 'text-shadow-400 hover:bg-shadow-800 hover:text-shadow-200'
-              }`}
-            >
-              <item.icon size={18} />
-              <span className="font-medium text-sm">{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-      </aside>
-
-      {/* Mobile Nav Overlay */}
-      {isMobileOpen && (
-        <div className="fixed inset-0 z-50 bg-shadow-950/90 md:hidden flex flex-col p-6 animate-in slide-in-from-left-10">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-xl font-bold">Menu</h2>
-            <button onClick={() => setIsMobileOpen(false)}>
-                <X size={24} />
-            </button>
-          </div>
-          
-          {/* Mobile Voice Toggle */}
-          <button 
-             onClick={() => { setVoiceActive(!isVoiceActive); setIsMobileOpen(false); }}
-             className={`w-full py-4 mb-6 rounded-xl flex items-center justify-center gap-2 font-bold transition-all ${
-                 isVoiceActive 
-                 ? 'bg-red-500 text-white' 
-                 : 'bg-accent-600 text-white'
-             }`}
-           >
-             {isVoiceActive ? <><MicOff size={20} /> Disconnect Voice</> : <><Mic size={20} /> Start Voice Session</>}
-           </button>
-
-          <nav className="space-y-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setIsMobileOpen(false)}
-                className={`flex items-center gap-4 px-4 py-3 rounded-xl ${
-                  location.pathname === item.path
-                    ? 'bg-accent-600 text-white'
-                    : 'bg-shadow-900 text-shadow-300'
-                }`}
-              >
-                <item.icon size={20} />
-                <span className="font-medium">{item.label}</span>
-              </Link>
-            ))}
-          </nav>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        {/* Mobile Header */}
-        <header className="md:hidden h-16 border-b border-shadow-800 flex items-center justify-between px-4 bg-shadow-900/50 backdrop-blur sticky top-0 z-40">
-           <div className="flex items-center gap-2">
-             <div className="w-6 h-6 rounded bg-accent-600 flex items-center justify-center">
-                <div className="w-3 h-3 bg-white rounded-full" />
-             </div>
-             <span className="font-bold">Shadow</span>
-           </div>
-           <div className="flex items-center gap-4">
-             {isVoiceActive && (
-                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-             )}
-             <button onClick={() => setIsMobileOpen(true)} className="p-2 text-shadow-400">
-               <Menu size={24} />
-             </button>
-           </div>
-        </header>
-
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
-            <div className="max-w-5xl mx-auto w-full">
-                {children}
+      {/* Desktop Sidebar / HUD Left Panel */}
+      <aside className="hidden md:flex flex-col w-72 bg-shadow-950/80 backdrop-blur-xl border-r border-shadow-800 p-4 z-10 relative">
+        
+        {/* Logo / Status Header */}
+        <div className="flex items-center gap-3 mb-10 px-2 group cursor-default">
+            <div className="w-10 h-10 relative flex items-center justify-center">
+                <div className="absolute inset-0 border-2 border-accent-500 rounded-lg transform rotate-45 group-hover:rotate-90 transition-transform duration-700 opacity-50"></div>
+                <div className="absolute inset-0 border-2 border-cyan-500 rounded-lg transform -rotate-12 group-hover:rotate-0 transition-transform duration-700 opacity-50"></div>
+                <Cpu size={20} className="text-white relative z-10" />
+            </div>
+            <div>
+                <h1 className="font-bold text-xl tracking-widest text-white holo-text">SHADOW</h1>
+                <p className="text-[10px] text-accent-400 tracking-[0.2em] uppercase">Sys.Online.v2.5</p>
             </div>
         </div>
+
+        {/* User Profile Snippet */}
+        <div className="mb-6 px-4 py-3 bg-shadow-900/50 border border-shadow-800 rounded clip-corner-tr flex items-center justify-between">
+           <div>
+               <p className="text-[9px] text-shadow-500 uppercase tracking-widest">Operator</p>
+               <p className="font-bold text-sm text-white truncate max-w-[120px]">{user?.name}</p>
+           </div>
+           <button 
+             onClick={logout}
+             className="text-shadow-500 hover:text-red-400 transition-colors p-1" 
+             title="Logout"
+            >
+               <LogOut size={16} />
+           </button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 space-y-2">
+            {desktopNavItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                    <Link 
+                        key={item.path}
+                        to={item.path}
+                        className={`relative flex items-center gap-4 px-4 py-3 clip-corner-tr transition-all group border-l-2 ${
+                            isActive 
+                            ? 'bg-accent-600/10 border-accent-500 text-white' 
+                            : 'border-transparent text-shadow-500 hover:text-accent-400 hover:bg-shadow-900/50 hover:border-shadow-700'
+                        }`}
+                    >
+                        <item.icon size={18} className={`transition-colors ${isActive ? 'text-accent-400' : 'text-shadow-600 group-hover:text-accent-400'}`} />
+                        <span className="font-medium tracking-wider text-sm">{item.label}</span>
+                        
+                        {isActive && (
+                            <div className="absolute right-2 w-1.5 h-1.5 bg-accent-400 rounded-full animate-pulse shadow-[0_0_10px_#6366f1]" />
+                        )}
+                    </Link>
+                )
+            })}
+        </nav>
+
+        {/* Voice Status / Mini HUD */}
+        <div className="mt-auto pt-6 border-t border-shadow-800/50">
+            <div className="clip-hud bg-shadow-900/50 border border-shadow-800 p-1">
+                <div className="bg-black/40 p-3 relative overflow-hidden">
+                    {/* Decorative Lines */}
+                    <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent-500/50" />
+                    <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent-500/50" />
+
+                    <div className="flex items-center justify-between mb-3 relative z-10">
+                        <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-sm ${isVoiceActive ? 'bg-red-500 shadow-[0_0_10px_#ef4444] animate-pulse' : 'bg-shadow-700'}`} />
+                            <span className={`text-[10px] font-bold tracking-widest uppercase ${isVoiceActive ? 'text-red-400' : 'text-shadow-500'}`}>
+                                {isVoiceActive ? 'Voice Link: ACTIVE' : 'Voice Link: OFFLINE'}
+                            </span>
+                        </div>
+                        <button 
+                            onClick={() => setVoiceActive(!isVoiceActive)}
+                            className={`p-1.5 rounded transition-all ${
+                                isVoiceActive 
+                                ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30' 
+                                : 'bg-shadow-800 text-shadow-400 hover:bg-shadow-700 border border-shadow-700'
+                            }`}
+                        >
+                            {isVoiceActive ? <MicOff size={14} /> : <Mic size={14} />}
+                        </button>
+                    </div>
+                    
+                    {/* Visualizer Container */}
+                    <div className="h-16 w-full bg-shadow-950 border border-shadow-800/50 relative overflow-hidden">
+                         {/* Grid Overlay on Visualizer */}
+                        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,18,18,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 pointer-events-none bg-[length:100%_4px,6px_100%]" />
+                        <Visualizer isActive={isVoiceActive} volume={volume} />
+                    </div>
+                </div>
+            </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10">
+          <div className="max-w-6xl mx-auto p-4 md:p-8 pb-28 md:pb-8">
+              {children}
+          </div>
       </main>
+
+      {/* Mobile Bottom Nav (Cyberpunk Style) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-shadow-950/95 backdrop-blur-xl border-t border-shadow-800 flex items-center justify-around px-2 py-3 z-50 safe-area-bottom">
+          {mobileNavItems.map((item) => {
+               const isActive = location.pathname === item.path;
+               return (
+                   <Link 
+                       key={item.path}
+                       to={item.path}
+                       className={`flex flex-col items-center gap-1 p-2 rounded transition-colors ${
+                           isActive ? 'text-accent-400' : 'text-shadow-500'
+                       }`}
+                   >
+                       <div className={`p-1 rounded ${isActive ? 'bg-accent-500/10' : ''}`}>
+                         <item.icon size={20} className={isActive ? 'animate-pulse' : ''} strokeWidth={2} />
+                       </div>
+                       <span className="text-[9px] font-bold tracking-wider">{item.label}</span>
+                   </Link>
+               )
+          })}
+          
+          {/* Logout for Mobile (Top Right usually, but let's put a mini button in nav for now or relies on sidebar. Actually, adding a top bar in layout for mobile is better, but sticking to request for nav) 
+              Let's add a logout floating button or just rely on the fact that this is a companion app. 
+              Better UX: Add logout to Settings page or similar. 
+              For now, I will add a small logout button near the hex button if space permits, or just keep it desktop sidebar.
+              Actually, let's add a profile/logout button to the header of the mobile view in the individual pages usually. 
+              But since Layout wraps everything, let's add a subtle logout on mobile top right.
+          */}
+          
+          {/* Hexagon Floating Button for Mobile */}
+          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
+             <div className="relative w-16 h-16 group">
+                <button
+                    onClick={() => setVoiceActive(!isVoiceActive)}
+                    className={`w-16 h-16 clip-hud flex items-center justify-center transition-all duration-300 ${
+                        isVoiceActive 
+                        ? 'bg-red-600 text-white shadow-[0_0_30px_#dc2626]' 
+                        : 'bg-shadow-800 border-2 border-accent-500/30 text-accent-400 hover:border-accent-400 hover:bg-shadow-700'
+                    }`}
+                >
+                    {isVoiceActive ? <MicOff size={24} /> : <Mic size={24} />}
+                </button>
+                {/* Rotating Ring */}
+                {isVoiceActive && (
+                    <div className="absolute -inset-2 border border-red-500/30 rounded-full animate-spin-slow pointer-events-none" />
+                )}
+             </div>
+          </div>
+      </nav>
+      
+      {/* Mobile Logout (Floating Top Right) */}
+      <div className="md:hidden fixed top-4 right-4 z-50">
+           <button 
+             onClick={logout}
+             className="bg-shadow-900/80 backdrop-blur text-shadow-400 border border-shadow-700 p-2 rounded-full hover:text-red-400 hover:border-red-500 transition-colors"
+           >
+               <LogOut size={16} />
+           </button>
+      </div>
+
     </div>
   );
 };

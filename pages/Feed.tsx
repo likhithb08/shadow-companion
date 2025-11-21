@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { MessageSquare, Heart, Share2, MoreHorizontal } from 'lucide-react';
+import { MessageSquare, Heart, Share2, MoreHorizontal, Sparkles } from 'lucide-react';
+import { refineText } from '../services/gemini';
 
 const MOCK_POSTS = [
     {
@@ -39,9 +40,36 @@ const MOCK_POSTS = [
 
 export const Feed: React.FC = () => {
   const [posts, setPosts] = useState(MOCK_POSTS);
+  const [newPostText, setNewPostText] = useState('');
+  const [isPolishing, setIsPolishing] = useState(false);
 
   const handleLike = (id: number) => {
       setPosts(posts.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p));
+  };
+
+  const handlePolish = async () => {
+    if (!newPostText.trim()) return;
+    setIsPolishing(true);
+    const refined = await refineText(newPostText, "Make it engaging and viral for social media");
+    setNewPostText(refined);
+    setIsPolishing(false);
+  };
+
+  const handlePost = () => {
+    if (!newPostText.trim()) return;
+    const post = {
+        id: Date.now(),
+        author: "Me",
+        handle: "@user",
+        avatar: "https://picsum.photos/seed/me/40/40",
+        content: newPostText,
+        likes: 0,
+        comments: 0,
+        time: "Just now",
+        tag: "General"
+    };
+    setPosts([post, ...posts]);
+    setNewPostText('');
   };
 
   return (
@@ -62,16 +90,31 @@ export const Feed: React.FC = () => {
         <div className="bg-shadow-900 border border-shadow-800 p-4 rounded-xl mb-8">
             <div className="flex gap-4">
                 <div className="w-10 h-10 rounded-full bg-accent-600 flex items-center justify-center font-bold">ME</div>
-                <input 
-                    type="text" 
-                    placeholder="Share your AI journey..." 
-                    className="bg-transparent flex-1 outline-none text-shadow-100 placeholder-shadow-500"
-                />
-            </div>
-            <div className="flex justify-end mt-3">
-                <button className="bg-white text-black px-4 py-1.5 rounded-lg font-medium text-sm hover:bg-shadow-200 transition-colors">
-                    Post
-                </button>
+                <div className="flex-1 space-y-2">
+                    <input 
+                        type="text" 
+                        value={newPostText}
+                        onChange={(e) => setNewPostText(e.target.value)}
+                        placeholder="Share your AI journey..." 
+                        className="w-full bg-transparent outline-none text-shadow-100 placeholder-shadow-500"
+                    />
+                    <div className="flex justify-between items-center pt-2">
+                        <button 
+                            onClick={handlePolish}
+                            disabled={isPolishing || !newPostText}
+                            className="flex items-center gap-2 text-xs text-accent-400 hover:text-accent-300 disabled:opacity-50"
+                        >
+                            <Sparkles size={14} className={isPolishing ? "animate-spin" : ""} />
+                            {isPolishing ? "Refining..." : "AI Polish (Flash Lite)"}
+                        </button>
+                        <button 
+                            onClick={handlePost}
+                            className="bg-white text-black px-4 py-1.5 rounded-lg font-medium text-sm hover:bg-shadow-200 transition-colors"
+                        >
+                            Post
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 

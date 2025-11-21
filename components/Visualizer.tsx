@@ -15,59 +15,72 @@ export const Visualizer: React.FC<VisualizerProps> = ({ isActive, volume }) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let phase = 0;
+    let offset = 0;
 
     const draw = () => {
       const width = canvas.width;
       const height = canvas.height;
       const centerY = height / 2;
 
-      ctx.clearRect(0, 0, width, height);
+      // Clear with semi-transparent black for trail effect
+      ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; 
+      ctx.fillRect(0, 0, width, height);
+
+      // Draw Grid lines (Retro Scope effect)
+      ctx.strokeStyle = 'rgba(63, 63, 70, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, centerY);
+      ctx.lineTo(width, centerY);
+      ctx.stroke();
 
       if (!isActive) {
-        // Idle state - slow breathing line
+        // Idle state - flat line with static
         ctx.beginPath();
         ctx.moveTo(0, centerY);
-        ctx.strokeStyle = '#3f3f46'; // Zinc 600
-        ctx.lineWidth = 2;
-        ctx.lineTo(width, centerY);
+        for (let i = 0; i < width; i+=5) {
+             ctx.lineTo(i, centerY + (Math.random() - 0.5) * 2);
+        }
+        ctx.strokeStyle = '#52525b';
         ctx.stroke();
         return;
       }
 
-      // Active State - Sine wave modulation based on volume
+      // Active State - Digital Waveform
       ctx.beginPath();
       ctx.moveTo(0, centerY);
       
       // Dynamic color based on volume intensity
-      const r = 99 + (volume * 1.5);
-      const g = 102;
-      const b = 241;
-      ctx.strokeStyle = `rgb(${r}, ${g}, ${b})`; // Indigo-ish
+      // Cyberpunk Cyan to Purple
+      const r = 100 + (volume);
+      const g = 100;
+      const b = 255;
+      ctx.strokeStyle = `rgb(${r}, ${g}, ${b})`; 
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = `rgb(${r}, ${g}, ${b})`;
       
-      ctx.lineWidth = 3 + (volume / 20);
-
-      const amplitude = Math.max(5, volume * 1.5); // Min amplitude to show it's alive
-      const frequency = 0.05;
-
-      for (let x = 0; x < width; x++) {
-        const y = centerY + Math.sin(x * frequency + phase) * amplitude * Math.sin(x / width * Math.PI); 
-        ctx.lineTo(x, y);
-      }
-
-      ctx.stroke();
-      
-      // Secondary echo line
-      ctx.beginPath();
-      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.3)`;
       ctx.lineWidth = 2;
-      for (let x = 0; x < width; x++) {
-        const y = centerY + Math.sin(x * frequency + phase - 0.5) * (amplitude * 0.7) * Math.sin(x / width * Math.PI); 
-        ctx.lineTo(x, y);
-      }
-      ctx.stroke();
 
-      phase += 0.2;
+      const bars = 30;
+      const barWidth = width / bars;
+
+      for (let i = 0; i < bars; i++) {
+          const x = i * barWidth;
+          // Create a blocky digital wave instead of sine
+          const noise = Math.random() * 0.5 + 0.5;
+          const barHeight = (Math.sin((i * 0.5) + offset) * volume * 1.5 * noise);
+          
+          ctx.moveTo(x, centerY - barHeight);
+          ctx.lineTo(x + barWidth - 2, centerY - barHeight); // Top of block
+          ctx.lineTo(x + barWidth - 2, centerY + barHeight); // Right side
+          ctx.lineTo(x, centerY + barHeight); // Bottom
+          ctx.lineTo(x, centerY - barHeight); // Close
+      }
+      
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      offset += 0.2;
       animationRef.current = requestAnimationFrame(draw);
     };
 
@@ -83,7 +96,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({ isActive, volume }) => {
       ref={canvasRef} 
       width={300} 
       height={100} 
-      className="w-full h-32 rounded-xl bg-shadow-900/50 backdrop-blur border border-shadow-800"
+      className="w-full h-full"
     />
   );
 };
