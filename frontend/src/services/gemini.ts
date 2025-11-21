@@ -1,6 +1,6 @@
 import { GoogleGenAI, FunctionDeclaration, Tool, Content } from "@google/genai";
 
-const API_KEY = process.env.API_KEY || '';
+const API_KEY = process.env.API_KEY || 'AIzaSyBbhcRXiFflh_iv6pch8AtmqCNkF7a4RS4';
 
 // Helper to check key
 export const hasApiKey = () => !!API_KEY;
