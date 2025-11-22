@@ -1,3 +1,4 @@
+
 import { useCallback, useMemo } from 'react';
 import { FunctionDeclaration, Type } from '@google/genai';
 import { useApp } from '../context/AppContext';
@@ -5,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { generateAIUpdates } from '../services/gemini';
 
 export const useGeminiTools = () => {
-  const { addTask, updateTask, tasks, deleteTask, updatePreferences, workflows, addWorkflow } = useApp();
+  const { addTask, updateTask, tasks, deleteTask, updatePreferences, addWorkflow, updateUserProfile } = useApp();
   const navigate = useNavigate();
 
   // --- Definitions ---
@@ -18,8 +19,8 @@ export const useGeminiTools = () => {
         properties: {
           screen: {
             type: Type.STRING,
-            description: 'The screen to navigate to. Options: "companion" (home), "feed", "updates", "productivity", "automation"',
-            enum: ['companion', 'feed', 'updates', 'productivity', 'automation']
+            description: 'The screen to navigate to. Options: "companion" (home), "feed", "updates", "productivity", "settings"',
+            enum: ['companion', 'feed', 'updates', 'productivity', 'settings']
           }
         },
         required: ['screen']
@@ -84,26 +85,6 @@ export const useGeminiTools = () => {
         parameters: {
           type: Type.OBJECT,
           properties: {},
-        }
-    },
-    {
-        name: 'createWorkflow',
-        description: 'Create a new automation workflow agent.',
-        parameters: {
-            type: Type.OBJECT,
-            properties: {
-                title: { type: Type.STRING },
-                description: { type: Type.STRING }
-            },
-            required: ['title', 'description']
-        }
-    },
-    {
-        name: 'getWorkflows',
-        description: 'Get the list of current automation workflows.',
-        parameters: {
-            type: Type.OBJECT,
-            properties: {}
         }
     },
     {
@@ -182,19 +163,7 @@ export const useGeminiTools = () => {
 
       case 'getAIUpdates': {
          const updates = await generateAIUpdates();
-         // Return full object so model can access summary or content
          return { result: JSON.stringify(updates) };
-      }
-
-      case 'createWorkflow': {
-          const { title, description } = args;
-          addWorkflow(title, description);
-          return { result: `Created workflow "${title}"` };
-      }
-
-      case 'getWorkflows': {
-          const wfList = workflows.map(w => `- ${w.title} (${w.status})`).join('\n');
-          return { result: wfList || "No workflows found." };
       }
       
       case 'changeVoice': {
@@ -206,7 +175,7 @@ export const useGeminiTools = () => {
       default:
         return { error: `Unknown tool: ${name}` };
     }
-  }, [addTask, deleteTask, updateTask, navigate, tasks, updatePreferences, workflows, addWorkflow]);
+  }, [addTask, deleteTask, updateTask, navigate, tasks, updatePreferences, updateUserProfile]);
 
   return { tools, handleToolCall };
 };

@@ -6,7 +6,7 @@ import { Companion } from './pages/Companion';
 import { Feed } from './pages/Feed';
 import { Updates } from './pages/Updates';
 import { Productivity } from './pages/Productivity';
-import { Automation } from './pages/Automation';
+import { Settings } from './pages/Settings';
 import { Login } from './pages/Login';
 import { AppProvider, useApp } from './context/AppContext';
 
@@ -33,8 +33,8 @@ const AppRoutes: React.FC = () => {
             <Route path="/productivity" element={
                 <ProtectedRoute><Productivity /></ProtectedRoute>
             } />
-            <Route path="/automation" element={
-                <ProtectedRoute><Automation /></ProtectedRoute>
+            <Route path="/settings" element={
+                <ProtectedRoute><Settings /></ProtectedRoute>
             } />
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

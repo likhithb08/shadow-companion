@@ -9,23 +9,41 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  password?: string; // Only for internal checking, usually don't expose in context
+  password?: string; 
+  // Extended Profile Fields
+  age?: number;
+  location?: string; // Place/Area/Region
+  nationality?: string;
+  language?: string; // Spoken Language
+  appLanguage?: string; // UI Language
+  creditsUsed?: number;
+  avatarSeed?: string;
+}
+
+export interface Comment {
+  id: string;
+  author: string;
+  text: string;
+  timestamp: number;
 }
 
 export interface FeedPost {
-  id: string;
+  id: number;
   author: string;
+  handle: string; 
+  avatar?: string; 
   content: string;
   likes: number;
-  timestamp: string;
-  category: 'News' | 'Opinion' | 'Tool';
+  timestamp: number; 
+  category: 'News' | 'Opinion' | 'Tool' | 'General'; 
+  comments: Comment[]; 
 }
 
 export interface AIUpdate {
   id: string;
   title: string;
   summary: string;
-  content?: string; // Detailed body text
+  content?: string; 
   source: string;
   date: string;
   tags: string[];
@@ -38,12 +56,23 @@ export interface Task {
   category: string;
 }
 
-export interface AutomationWorkflow {
-  id: number;
-  title: string;
-  desc: string;
-  status: 'Active' | 'Paused' | 'Error';
-  iconName: 'Mail' | 'MessageSquare' | 'AlertCircle' | 'Zap';
+// --- Chat / Social Types ---
+export interface Friend {
+  id: string;
+  name: string;
+  handle: string;
+  avatar: string;
+  status: 'online' | 'busy' | 'offline';
+  personaPrompt: string; // For AI generation
+}
+
+export interface DirectMessage {
+  id: string;
+  senderId: string; // 'me' or friendId
+  receiverId: string;
+  text: string;
+  timestamp: number;
+  isRead: boolean;
 }
 
 // Audio Types for Live API
@@ -67,6 +96,7 @@ export interface AppContextType {
   login: (email: string, pass: string) => Promise<boolean>;
   signup: (email: string, pass: string, name: string) => Promise<boolean>;
   logout: () => void;
+  updateUserProfile: (updates: Partial<User>) => void;
 
   tasks: Task[];
   addTask: (text: string, category?: string) => void;
@@ -74,8 +104,17 @@ export interface AppContextType {
   toggleTask: (id: number) => void;
   deleteTask: (id: number) => void;
   
-  workflows: AutomationWorkflow[];
-  addWorkflow: (title: string, desc: string) => void;
+  // Social Feed
+  posts: FeedPost[];
+  addPost: (content: string, tag: string) => void;
+  deletePost: (id: number) => void;
+  toggleLike: (id: number) => void;
+  addComment: (postId: number, text: string) => void;
+
+  // Direct Messaging
+  friends: Friend[];
+  directMessages: Record<string, DirectMessage[]>; // keyed by Friend ID
+  sendDirectMessage: (friendId: string, text: string) => void;
 
   preferences: CompanionPreferences;
   updatePreferences: (prefs: Partial<CompanionPreferences>) => void;

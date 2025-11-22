@@ -6,14 +6,11 @@ import {
   Activity, 
   Users, 
   CheckSquare, 
-  Zap, 
   User,
   MicOff,
-  Home,
-  Settings,
+  LogOut,
   Cpu,
-  Radio,
-  LogOut
+  Settings as SettingsIcon
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLiveSession } from '../hooks/useLiveSession';
@@ -37,14 +34,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { icon: Activity, label: 'INTEL', path: '/updates' },
     { icon: Users, label: 'NETWORK', path: '/feed' },
     { icon: CheckSquare, label: 'MISSIONS', path: '/productivity' },
-    { icon: Zap, label: 'PROTOCOLS', path: '/automation' },
+    { icon: SettingsIcon, label: 'SETTINGS', path: '/settings' },
   ];
 
   // Mobile Nav
   const mobileNavItems = [
     { icon: Activity, label: 'NEWS', path: '/updates' }, 
     { icon: CheckSquare, label: 'TASKS', path: '/productivity' }, 
-    { icon: Zap, label: 'BOTS', path: '/automation' }, 
+    { icon: SettingsIcon, label: 'CONFIG', path: '/settings' }, 
     { icon: User, label: 'HOME', path: '/' },
   ];
 
@@ -175,14 +172,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                    </Link>
                )
           })}
-          
-          {/* Logout for Mobile (Top Right usually, but let's put a mini button in nav for now or relies on sidebar. Actually, adding a top bar in layout for mobile is better, but sticking to request for nav) 
-              Let's add a logout floating button or just rely on the fact that this is a companion app. 
-              Better UX: Add logout to Settings page or similar. 
-              For now, I will add a small logout button near the hex button if space permits, or just keep it desktop sidebar.
-              Actually, let's add a profile/logout button to the header of the mobile view in the individual pages usually. 
-              But since Layout wraps everything, let's add a subtle logout on mobile top right.
-          */}
           
           {/* Hexagon Floating Button for Mobile */}
           <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">

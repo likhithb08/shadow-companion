@@ -1,6 +1,6 @@
 import { GoogleGenAI, FunctionDeclaration, Tool, Content } from "@google/genai";
 
-const API_KEY = process.env.API_KEY || 'AIzaSyBbhcRXiFflh_iv6pch8AtmqCNkF7a4RS4';
+const API_KEY = process.env.API_KEY || '';
 
 // Helper to check key
 export const hasApiKey = () => !!API_KEY;
@@ -70,6 +70,25 @@ export const refineText = async (text: string, instruction: string = "Make it co
     console.error("Failed to refine text", e);
     return text;
   }
+};
+
+export const generatePersonaReply = async (persona: string, lastMessage: string): Promise<string> => {
+    if (!API_KEY) return "...";
+    const ai = new GoogleGenAI({ apiKey: API_KEY });
+  
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-flash-lite-latest',
+        contents: `You are roleplaying as a character. 
+        Character Persona: ${persona}
+        User sent: "${lastMessage}"
+        
+        Reply to the user in character. Keep it short (under 20 words), casual, and like a real-time chat message. Do not use hashtags.`,
+      });
+      return response.text?.trim() || "Interesting!";
+    } catch (e) {
+      return "Cannot connect to neural link...";
+    }
 };
 
 // Core Chat Function for Text-Based interaction
