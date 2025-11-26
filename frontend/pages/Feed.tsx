@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Heart, Share2, MoreHorizontal, Sparkles, Trash2, Send, Users, MessageCircle, Circle } from 'lucide-react';
 import { refineText } from '../services/gemini';

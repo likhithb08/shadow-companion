@@ -18,6 +18,7 @@ export interface User {
   appLanguage?: string; // UI Language
   creditsUsed?: number;
   avatarSeed?: string;
+  focusStreak?: number; // Gamification
 }
 
 export interface Comment {
@@ -83,12 +84,38 @@ export interface AudioConfig {
 
 export type LiveStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
+// --- Behavior & Focus Types ---
+export type ActivityType = 'app-open' | 'nav-switch' | 'task-update' | 'task-start' | 'task-complete' | 'timer-start' | 'timer-stop' | 'idle-detected' | 'focus-break';
+
+export interface ActivityLog {
+  timestamp: number;
+  action: ActivityType;
+  details?: string;
+}
+
+export interface FocusState {
+  isActive: boolean;
+  taskId: number | null; // The ONE task being focused on
+  startTime: number;
+  durationMinutes: number; // 25, 45, 90
+  isPaused: boolean;
+}
+
 // Context Types
 export interface CompanionPreferences {
   voiceName: 'Puck' | 'Charon' | 'Kore' | 'Fenrir' | 'Zephyr';
   systemInstruction: string;
   userName: string;
   autoSpeak: boolean;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'model';
+  text: string;
+  timestamp: number;
+  isToolOutput?: boolean;
+  isSystemNudge?: boolean; // For proactive behavior messages
 }
 
 export interface AppContextType {
@@ -121,12 +148,18 @@ export interface AppContextType {
   
   isVoiceActive: boolean;
   setVoiceActive: (active: boolean) => void;
-}
-
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'model';
-  text: string;
-  timestamp: number;
-  isToolOutput?: boolean;
+  
+  // Behavior & Focus
+  activityLog: ActivityLog[];
+  logActivity: (action: ActivityType, details?: string) => void;
+  focusState: FocusState;
+  startFocusMode: (taskId: number | null, minutes: number) => void;
+  stopFocusMode: (completed: boolean) => void;
+  
+  // Chat Methods (exposed for System Nudges)
+  addSystemMessage: (text: string) => void;
+  
+  // Legacy/Optional if referenced
+  workflows?: any[];
+  addWorkflow?: any;
 }

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { User, Mail, MapPin, Globe, Flag, Languages, Save, CreditCard, CheckSquare, Users, FileText, Shield } from 'lucide-react';
 import { useApp } from '../context/AppContext';

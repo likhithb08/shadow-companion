@@ -6,7 +6,9 @@ import { Companion } from './pages/Companion';
 import { Feed } from './pages/Feed';
 import { Updates } from './pages/Updates';
 import { Productivity } from './pages/Productivity';
+import { Automation } from './pages/Automation';
 import { Settings } from './pages/Settings';
+import { FocusHub } from './pages/FocusHub';
 import { Login } from './pages/Login';
 import { AppProvider, useApp } from './context/AppContext';
 
@@ -24,17 +26,38 @@ const AppRoutes: React.FC = () => {
             <Route path="/" element={
                 <ProtectedRoute><Companion /></ProtectedRoute>
             } />
-            <Route path="/feed" element={
+            <Route path="/intel" element={
+                <ProtectedRoute><Updates /></ProtectedRoute>
+            } />
+            <Route path="/network" element={
                 <ProtectedRoute><Feed /></ProtectedRoute>
+            } />
+            <Route path="/missions" element={
+                <ProtectedRoute><Automation /></ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+                <ProtectedRoute><Settings /></ProtectedRoute>
+            } />
+            <Route path="/tasks" element={
+                <ProtectedRoute><Productivity /></ProtectedRoute>
             } />
             <Route path="/updates" element={
                 <ProtectedRoute><Updates /></ProtectedRoute>
             } />
+            <Route path="/focus" element={
+                <ProtectedRoute><FocusHub /></ProtectedRoute>
+            } />
+            <Route path="/behavior" element={
+                <ProtectedRoute><FocusHub /></ProtectedRoute>
+            } />
+            <Route path="/voice" element={
+                <ProtectedRoute><Companion /></ProtectedRoute>
+            } />
+            <Route path="/feed" element={
+                <ProtectedRoute><Feed /></ProtectedRoute>
+            } />
             <Route path="/productivity" element={
                 <ProtectedRoute><Productivity /></ProtectedRoute>
-            } />
-            <Route path="/settings" element={
-                <ProtectedRoute><Settings /></ProtectedRoute>
             } />
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

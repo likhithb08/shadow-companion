@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { generateAIUpdates } from '../services/gemini';
 
 export const useGeminiTools = () => {
-  const { addTask, updateTask, tasks, deleteTask, updatePreferences, addWorkflow, updateUserProfile } = useApp();
+  const { addTask, updateTask, tasks, deleteTask, updatePreferences, updateUserProfile, startFocusMode } = useApp();
   const navigate = useNavigate();
 
   // --- Definitions ---
@@ -19,8 +19,8 @@ export const useGeminiTools = () => {
         properties: {
           screen: {
             type: Type.STRING,
-            description: 'The screen to navigate to. Options: "companion" (home), "feed", "updates", "productivity", "settings"',
-            enum: ['companion', 'feed', 'updates', 'productivity', 'settings']
+            description: 'The screen to navigate to. Options: "companion" (home), "feed", "updates", "productivity", "settings", "focus"',
+            enum: ['companion', 'feed', 'updates', 'productivity', 'settings', 'focus']
           }
         },
         required: ['screen']
@@ -69,6 +69,24 @@ export const useGeminiTools = () => {
           }
         },
         required: ['searchPhrase', 'action']
+      }
+    },
+    {
+      name: 'startFocus',
+      description: 'Start a focus session (Focus Mode) for a specified duration. Use this when the user says "Start a 25 minute timer", "Focus mode", or "I need to work". This will lock the interface.',
+      parameters: {
+        type: Type.OBJECT,
+        properties: {
+          minutes: {
+            type: Type.NUMBER,
+            description: 'Duration in minutes. Defaults to 25 if not specified. Common values: 25, 45, 90.',
+          },
+          taskId: {
+            type: Type.NUMBER,
+            description: 'Optional ID of the task to focus on. If not provided, it starts a generic Free Flow session.',
+          }
+        },
+        required: ['minutes']
       }
     },
     {
@@ -156,6 +174,13 @@ export const useGeminiTools = () => {
         return { result: `Error: Could not find a task matching "${searchPhrase}". Please check the task list.` };
       }
       
+      case 'startFocus': {
+        const { minutes, taskId } = args;
+        const duration = minutes || 25;
+        startFocusMode(taskId || null, duration);
+        return { result: `Focus Mode activated for ${duration} minutes. Interface locked.` };
+      }
+      
       case 'getTasks': {
         const taskList = tasks.map(t => `- ${t.text} (${t.completed ? 'Done' : 'Pending'}, ${t.category})`).join('\n');
         return { result: taskList || "No tasks found." };
@@ -175,7 +200,7 @@ export const useGeminiTools = () => {
       default:
         return { error: `Unknown tool: ${name}` };
     }
-  }, [addTask, deleteTask, updateTask, navigate, tasks, updatePreferences, updateUserProfile]);
+  }, [addTask, deleteTask, updateTask, navigate, tasks, updatePreferences, updateUserProfile, startFocusMode]);
 
   return { tools, handleToolCall };
 };

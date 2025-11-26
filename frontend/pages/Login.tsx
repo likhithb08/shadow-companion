@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Cpu, ArrowRight, Lock, Mail, User } from 'lucide-react';
 import { useApp } from '../context/AppContext';

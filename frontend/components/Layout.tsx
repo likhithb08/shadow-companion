@@ -10,11 +10,21 @@ import {
   MicOff,
   LogOut,
   Cpu,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  Brain,
+  Zap,
+  Timer,
+  Terminal,
+  FileText,
+  GitBranch,
+  BarChart2,
+  Newspaper
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLiveSession } from '../hooks/useLiveSession';
+import { useBehaviorAnalysis } from '../hooks/useBehaviorAnalysis'; // Import Hook
 import { Visualizer } from './Visualizer';
+import { FocusMode } from './FocusMode'; // Import Component
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -28,19 +38,28 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   
   // Initialize session at the Layout level so it persists across route changes
   const { status, volume } = useLiveSession(isVoiceActive);
+  
+  // Activate Behavior Analysis Globally
+  useBehaviorAnalysis();
 
   const desktopNavItems = [
-    { icon: User, label: 'COMMAND', path: '/' },
-    { icon: Activity, label: 'INTEL', path: '/updates' },
-    { icon: Users, label: 'NETWORK', path: '/feed' },
-    { icon: CheckSquare, label: 'MISSIONS', path: '/productivity' },
+    { icon: Terminal, label: 'COMMAND', path: '/' },
+    { icon: FileText, label: 'INTEL', path: '/intel' },
+    { icon: Users, label: 'NETWORK', path: '/network' },
+    { icon: GitBranch, label: 'MISSIONS', path: '/missions' },
     { icon: SettingsIcon, label: 'SETTINGS', path: '/settings' },
+    { icon: CheckSquare, label: 'TASKS', path: '/tasks' },
+    { icon: Newspaper, label: 'AI UPDATES', path: '/updates' },
+    { icon: Brain, label: 'FOCUS MODE', path: '/focus' },
+    { icon: BarChart2, label: 'BEHAVIOR', path: '/behavior' },
+    { icon: Mic, label: 'VOICE CONSOLE', path: '/voice' },
   ];
 
   // Mobile Nav
   const mobileNavItems = [
-    { icon: Activity, label: 'NEWS', path: '/updates' }, 
-    { icon: CheckSquare, label: 'TASKS', path: '/productivity' }, 
+    { icon: FileText, label: 'INTEL', path: '/intel' }, 
+    { icon: Brain, label: 'FOCUS', path: '/focus' },
+    { icon: CheckSquare, label: 'TASKS', path: '/tasks' }, 
     { icon: SettingsIcon, label: 'CONFIG', path: '/settings' }, 
     { icon: User, label: 'HOME', path: '/' },
   ];
@@ -48,6 +67,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-shadow-950 text-shadow-100 font-sans flex overflow-hidden pb-20 md:pb-0 relative selection:bg-accent-500/30 selection:text-accent-400">
       
+      {/* Focus Mode Overlay */}
+      <FocusMode />
+
       {/* Background Tech Grid */}
       <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-20 pointer-events-none z-0" />
       <div className="absolute inset-0 bg-gradient-to-b from-shadow-950 via-transparent to-shadow-950 z-0 opacity-80 pointer-events-none" />
@@ -56,7 +78,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <aside className="hidden md:flex flex-col w-72 bg-shadow-950/80 backdrop-blur-xl border-r border-shadow-800 p-4 z-10 relative">
         
         {/* Logo / Status Header */}
-        <div className="flex items-center gap-3 mb-10 px-2 group cursor-default">
+        <div className="flex items-center gap-3 mb-6 px-2 group cursor-default shrink-0">
             <div className="w-10 h-10 relative flex items-center justify-center">
                 <div className="absolute inset-0 border-2 border-accent-500 rounded-lg transform rotate-45 group-hover:rotate-90 transition-transform duration-700 opacity-50"></div>
                 <div className="absolute inset-0 border-2 border-cyan-500 rounded-lg transform -rotate-12 group-hover:rotate-0 transition-transform duration-700 opacity-50"></div>
@@ -69,7 +91,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
 
         {/* User Profile Snippet */}
-        <div className="mb-6 px-4 py-3 bg-shadow-900/50 border border-shadow-800 rounded clip-corner-tr flex items-center justify-between">
+        <div className="mb-6 px-4 py-3 bg-shadow-900/50 border border-shadow-800 rounded clip-corner-tr flex items-center justify-between shrink-0">
            <div>
                <p className="text-[9px] text-shadow-500 uppercase tracking-widest">Operator</p>
                <p className="font-bold text-sm text-white truncate max-w-[120px]">{user?.name}</p>
@@ -84,21 +106,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar pr-2">
             {desktopNavItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 return (
                     <Link 
                         key={item.path}
                         to={item.path}
-                        className={`relative flex items-center gap-4 px-4 py-3 clip-corner-tr transition-all group border-l-2 ${
+                        className={`relative flex items-center gap-4 px-4 py-2.5 clip-corner-tr transition-all group border-l-2 ${
                             isActive 
                             ? 'bg-accent-600/10 border-accent-500 text-white' 
                             : 'border-transparent text-shadow-500 hover:text-accent-400 hover:bg-shadow-900/50 hover:border-shadow-700'
                         }`}
                     >
                         <item.icon size={18} className={`transition-colors ${isActive ? 'text-accent-400' : 'text-shadow-600 group-hover:text-accent-400'}`} />
-                        <span className="font-medium tracking-wider text-sm">{item.label}</span>
+                        <span className="font-medium tracking-wider text-xs">{item.label}</span>
                         
                         {isActive && (
                             <div className="absolute right-2 w-1.5 h-1.5 bg-accent-400 rounded-full animate-pulse shadow-[0_0_10px_#6366f1]" />
@@ -109,7 +131,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </nav>
 
         {/* Voice Status / Mini HUD */}
-        <div className="mt-auto pt-6 border-t border-shadow-800/50">
+        <div className="mt-4 pt-4 border-t border-shadow-800/50 shrink-0">
             <div className="clip-hud bg-shadow-900/50 border border-shadow-800 p-1">
                 <div className="bg-black/40 p-3 relative overflow-hidden">
                     {/* Decorative Lines */}

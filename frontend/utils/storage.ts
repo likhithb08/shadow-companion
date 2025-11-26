@@ -1,4 +1,3 @@
-
 import { Task, CompanionPreferences, User, FeedPost, Friend, DirectMessage } from '../types';
 
 const USERS_KEY = 'shadow_db_users';

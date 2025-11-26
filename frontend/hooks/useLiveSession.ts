@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { GoogleGenAI, Modality, LiveServerMessage } from '@google/genai';
 import { floatTo16BitPCM, pcm16ToFloat32, base64ToArrayBuffer, arrayBufferToBase64 } from '../utils/audioUtils';

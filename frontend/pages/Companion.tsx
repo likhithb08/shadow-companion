@@ -1,5 +1,6 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, MicOff, Send, User, Sparkles, Settings as SettingsIcon, Terminal, Cpu, Volume2, VolumeX } from 'lucide-react';
+import { Mic, MicOff, Send, User, Sparkles, Settings as SettingsIcon, Terminal, Cpu, Volume2, VolumeX, AlertTriangle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { ChatMessage } from '../types';
 import { runChatTurn } from '../services/gemini';
@@ -33,6 +34,32 @@ export const Companion: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [chatHistory, isTyping]);
+
+  // --- Listen for System Messages (Behavior Nudges / Focus Summaries) ---
+  useEffect(() => {
+    const handleSystemMessage = (event: CustomEvent<string>) => {
+      const text = event.detail;
+      const sysMsg: ChatMessage = {
+        id: Date.now().toString(),
+        role: 'model',
+        text: text,
+        timestamp: Date.now(),
+        isSystemNudge: true
+      };
+      
+      setChatHistory(prev => [...prev, sysMsg]);
+      
+      // Auto-speak system messages if enabled (even if not voice active, for alerts)
+      if (preferences.autoSpeak) {
+        speak(text);
+      }
+    };
+
+    window.addEventListener('shadow-system-message', handleSystemMessage as EventListener);
+    return () => {
+      window.removeEventListener('shadow-system-message', handleSystemMessage as EventListener);
+    };
+  }, [preferences.autoSpeak]);
 
   // --- Text-to-Speech Logic ---
   const speak = (text: string) => {
@@ -248,19 +275,24 @@ export const Companion: React.FC = () => {
                  <div className={`max-w-[85%] relative group ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                      {/* Name Tag */}
                      <div className={`text-[10px] mb-1 uppercase tracking-widest opacity-50 ${msg.role === 'user' ? 'text-right text-accent-400' : 'text-left text-cyan-400'}`}>
-                         {msg.role === 'user' ? 'OPERATOR' : 'SHADOW UNIT'}
+                         {msg.role === 'user' ? 'OPERATOR' : (msg.isSystemNudge ? 'SYSTEM ALERT' : 'SHADOW UNIT')}
                      </div>
                      
                      {/* Message Box */}
                      <div className={`px-6 py-4 text-sm leading-relaxed border backdrop-blur-sm clip-hud relative group/bubble ${
                          msg.role === 'user' 
                          ? 'bg-accent-900/20 border-accent-500/30 text-shadow-100' 
-                         : 'bg-shadow-900/40 border-shadow-700 text-cyan-100'
+                         : msg.isSystemNudge 
+                            ? 'bg-yellow-900/20 border-yellow-600/50 text-yellow-100'
+                            : 'bg-shadow-900/40 border-shadow-700 text-cyan-100'
                      }`}>
-                         {/* Glitch decoration for AI */}
+                         {/* Decoration for AI/System */}
                          {msg.role === 'model' && (
-                             <div className="absolute -left-1 top-4 w-0.5 h-4 bg-cyan-500/50" />
+                             <div className={`absolute -left-1 top-4 w-0.5 h-4 ${msg.isSystemNudge ? 'bg-yellow-500' : 'bg-cyan-500/50'}`} />
                          )}
+                         
+                         {/* System Icon */}
+                         {msg.isSystemNudge && <AlertTriangle size={16} className="text-yellow-500 inline mr-2 mb-1" />}
                          
                          {msg.text}
 

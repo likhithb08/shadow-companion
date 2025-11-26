@@ -1,14 +1,18 @@
+
 import React, { useState } from 'react';
-import { CheckCircle2, Circle, Plus, Search, Play, MoreVertical, Trash2, ListTodo, LayoutGrid, CheckSquare, Sparkles } from 'lucide-react';
+import { CheckCircle2, Circle, Plus, Search, Play, MoreVertical, Trash2, ListTodo, LayoutGrid, CheckSquare, Sparkles, Brain, Timer, X } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { refineText } from '../services/gemini';
 
 export const Productivity: React.FC = () => {
-  const { tasks, addTask, toggleTask, deleteTask } = useApp();
+  const { tasks, addTask, toggleTask, deleteTask, startFocusMode } = useApp();
   const [filter, setFilter] = useState<'all' | 'pending' | 'done'>('all');
   const [isAdding, setIsAdding] = useState(false);
   const [newTaskText, setNewTaskText] = useState('');
   const [isRefining, setIsRefining] = useState(false);
+  
+  // Track which task is currently selecting a focus duration
+  const [focusSelectionId, setFocusSelectionId] = useState<number | null>(null);
 
   const filteredTasks = tasks.filter(t => {
       if (filter === 'pending') return !t.completed;
@@ -30,6 +34,11 @@ export const Productivity: React.FC = () => {
       const refined = await refineText(newTaskText, "Convert this into a clear, actionable task item. Keep it brief.");
       setNewTaskText(refined);
       setIsRefining(false);
+  };
+
+  const handleStartFocus = (taskId: number, minutes: number) => {
+      startFocusMode(taskId, minutes);
+      setFocusSelectionId(null);
   };
 
   return (
@@ -153,9 +162,39 @@ export const Productivity: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="h-px bg-shadow-800 my-4" />
+                        {/* Duration Selection Mode */}
+                        {focusSelectionId === task.id ? (
+                            <div className="bg-shadow-950/50 rounded-xl p-3 mb-3 border border-accent-500/30 animate-in fade-in zoom-in-95 duration-200">
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-xs font-bold uppercase tracking-wider text-accent-400">Select Focus Duration</span>
+                                    <button onClick={() => setFocusSelectionId(null)} className="text-shadow-500 hover:text-red-400"><X size={14}/></button>
+                                </div>
+                                <div className="grid grid-cols-3 gap-2">
+                                    <button onClick={() => handleStartFocus(task.id, 25)} className="p-2 bg-shadow-800 hover:bg-accent-600 hover:text-white text-shadow-300 rounded text-xs font-bold transition-colors">
+                                        25m<br/><span className="text-[9px] opacity-70 font-normal">Pomodoro</span>
+                                    </button>
+                                    <button onClick={() => handleStartFocus(task.id, 45)} className="p-2 bg-shadow-800 hover:bg-accent-600 hover:text-white text-shadow-300 rounded text-xs font-bold transition-colors">
+                                        45m<br/><span className="text-[9px] opacity-70 font-normal">Deep Work</span>
+                                    </button>
+                                    <button onClick={() => handleStartFocus(task.id, 90)} className="p-2 bg-shadow-800 hover:bg-accent-600 hover:text-white text-shadow-300 rounded text-xs font-bold transition-colors">
+                                        90m<br/><span className="text-[9px] opacity-70 font-normal">Flow</span>
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="h-px bg-shadow-800 my-4" />
+                        )}
 
                         <div className="flex justify-end gap-3">
+                            {!task.completed && focusSelectionId !== task.id && (
+                                <button 
+                                    onClick={() => setFocusSelectionId(task.id)}
+                                    className="px-4 py-2 bg-accent-600/10 hover:bg-accent-600/20 text-accent-400 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors border border-accent-500/20"
+                                >
+                                    <Brain size={14} />
+                                    Focus
+                                </button>
+                            )}
                             <button 
                                 onClick={() => toggleTask(task.id)}
                                 className="px-4 py-2 bg-shadow-800 hover:bg-shadow-700 text-shadow-200 rounded-lg text-xs font-bold transition-colors"
