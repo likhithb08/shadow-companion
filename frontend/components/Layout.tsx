@@ -47,12 +47,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { icon: FileText, label: 'INTEL', path: '/intel' },
     { icon: Users, label: 'NETWORK', path: '/network' },
     { icon: GitBranch, label: 'MISSIONS', path: '/missions' },
-    { icon: SettingsIcon, label: 'SETTINGS', path: '/settings' },
     { icon: CheckSquare, label: 'TASKS', path: '/tasks' },
-    { icon: Newspaper, label: 'AI UPDATES', path: '/updates' },
     { icon: Brain, label: 'FOCUS MODE', path: '/focus' },
     { icon: BarChart2, label: 'BEHAVIOR', path: '/behavior' },
     { icon: Mic, label: 'VOICE CONSOLE', path: '/voice' },
+    { icon: SettingsIcon, label: 'SETTINGS', path: '/settings' }
   ];
 
   // Mobile Nav
