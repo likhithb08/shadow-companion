@@ -5,20 +5,41 @@ export interface UserProfile {
   goal: string;
 }
 
+export interface EgoStats {
+  focus: number;
+  discipline: number;
+  skill: number;
+  speed: number;
+  creativity: number;
+  mentalStrength: number;
+}
+
+export interface EgoTask {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+export interface EgoEvolutionState {
+  targetStat: keyof EgoStats | null;
+  reductionAmount: number;
+  tasks: EgoTask[];
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
   password?: string; 
-  // Extended Profile Fields
   age?: number;
-  location?: string; // Place/Area/Region
+  location?: string;
   nationality?: string;
-  language?: string; // Spoken Language
-  appLanguage?: string; // UI Language
+  language?: string;
+  appLanguage?: string;
   creditsUsed?: number;
   avatarSeed?: string;
-  focusStreak?: number; // Gamification
+  focusStreak?: number;
+  egoStats: EgoStats; // Added for growth system
 }
 
 export interface Comment {
@@ -57,35 +78,25 @@ export interface Task {
   category: string;
 }
 
-// --- Chat / Social Types ---
 export interface Friend {
   id: string;
   name: string;
   handle: string;
   avatar: string;
   status: 'online' | 'busy' | 'offline';
-  personaPrompt: string; // For AI generation
+  personaPrompt: string;
 }
 
 export interface DirectMessage {
   id: string;
-  senderId: string; // 'me' or friendId
+  senderId: string;
   receiverId: string;
   text: string;
   timestamp: number;
   isRead: boolean;
 }
 
-// Audio Types for Live API
-export interface AudioConfig {
-  sampleRate: number;
-  channels: number;
-}
-
-export type LiveStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
-
-// --- Behavior & Focus Types ---
-export type ActivityType = 'app-open' | 'nav-switch' | 'task-update' | 'task-start' | 'task-complete' | 'timer-start' | 'timer-stop' | 'idle-detected' | 'focus-break';
+export type ActivityType = 'app-open' | 'nav-switch' | 'task-update' | 'task-start' | 'task-complete' | 'timer-start' | 'timer-stop' | 'idle-detected' | 'focus-break' | 'ego-devour' | 'ego-levelup';
 
 export interface ActivityLog {
   timestamp: number;
@@ -95,13 +106,12 @@ export interface ActivityLog {
 
 export interface FocusState {
   isActive: boolean;
-  taskId: number | null; // The ONE task being focused on
+  taskId: number | null;
   startTime: number;
-  durationMinutes: number; // 25, 45, 90
+  durationMinutes: number;
   isPaused: boolean;
 }
 
-// Context Types
 export interface CompanionPreferences {
   voiceName: 'Puck' | 'Charon' | 'Kore' | 'Fenrir' | 'Zephyr';
   systemInstruction: string;
@@ -115,7 +125,7 @@ export interface ChatMessage {
   text: string;
   timestamp: number;
   isToolOutput?: boolean;
-  isSystemNudge?: boolean; // For proactive behavior messages
+  isSystemNudge?: boolean;
 }
 
 export interface AppContextType {
@@ -131,16 +141,14 @@ export interface AppContextType {
   toggleTask: (id: number) => void;
   deleteTask: (id: number) => void;
   
-  // Social Feed
   posts: FeedPost[];
   addPost: (content: string, tag: string) => void;
   deletePost: (id: number) => void;
   toggleLike: (id: number) => void;
   addComment: (postId: number, text: string) => void;
 
-  // Direct Messaging
   friends: Friend[];
-  directMessages: Record<string, DirectMessage[]>; // keyed by Friend ID
+  directMessages: Record<string, DirectMessage[]>;
   sendDirectMessage: (friendId: string, text: string) => void;
 
   preferences: CompanionPreferences;
@@ -149,17 +157,17 @@ export interface AppContextType {
   isVoiceActive: boolean;
   setVoiceActive: (active: boolean) => void;
   
-  // Behavior & Focus
   activityLog: ActivityLog[];
   logActivity: (action: ActivityType, details?: string) => void;
   focusState: FocusState;
   startFocusMode: (taskId: number | null, minutes: number) => void;
   stopFocusMode: (completed: boolean) => void;
   
-  // Chat Methods (exposed for System Nudges)
-  addSystemMessage: (text: string) => void;
+  // Growth System
+  egoEvolution: EgoEvolutionState;
+  activateDevourMode: (stat: keyof EgoStats) => void;
+  toggleEgoTask: (taskId: string) => void;
+  cancelDevourMode: () => void;
   
-  // Legacy/Optional if referenced
-  workflows?: any[];
-  addWorkflow?: any;
+  addSystemMessage: (text: string) => void;
 }

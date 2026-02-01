@@ -5,19 +5,53 @@ export interface UserProfile {
   goal: string;
 }
 
+export interface EgoStats {
+  focus: number;
+  discipline: number;
+  skill: number;
+  speed: number;
+  creativity: number;
+  mentalStrength: number;
+}
+
+export interface EgoTask {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+export interface SkillTest {
+  question: string;
+  type: 'scenario' | 'technical' | 'logic';
+}
+
+export interface EgoEvolutionState {
+  targetStat: keyof EgoStats | null;
+  customSkill?: string | null;
+  reductionAmount: number;
+  tasks: EgoTask[];
+  awaitingTest: boolean;
+  test?: SkillTest | null;
+  testResult?: {
+    passed: boolean;
+    feedback: string;
+  } | null;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
   password?: string; 
-  // Extended Profile Fields
   age?: number;
-  location?: string; // Place/Area/Region
+  location?: string;
   nationality?: string;
-  language?: string; // Spoken Language
-  appLanguage?: string; // UI Language
+  language?: string;
+  appLanguage?: string;
   creditsUsed?: number;
   avatarSeed?: string;
+  focusStreak?: number;
+  egoStats: EgoStats;
 }
 
 export interface Comment {
@@ -56,39 +90,45 @@ export interface Task {
   category: string;
 }
 
-// --- Chat / Social Types ---
 export interface Friend {
   id: string;
   name: string;
   handle: string;
   avatar: string;
   status: 'online' | 'busy' | 'offline';
-  personaPrompt: string; // For AI generation
+  personaPrompt: string;
 }
 
 export interface DirectMessage {
   id: string;
-  senderId: string; // 'me' or friendId
+  senderId: string;
   receiverId: string;
   text: string;
   timestamp: number;
   isRead: boolean;
 }
 
-// Audio Types for Live API
-export interface AudioConfig {
-  sampleRate: number;
-  channels: number;
+export interface FocusState {
+  isActive: boolean;
+  taskId: number | null;
+  startTime: number;
+  durationMinutes: number;
+  isPaused: boolean;
 }
 
-export type LiveStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
-
-// Context Types
 export interface CompanionPreferences {
   voiceName: 'Puck' | 'Charon' | 'Kore' | 'Fenrir' | 'Zephyr';
   systemInstruction: string;
   userName: string;
   autoSpeak: boolean;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'model';
+  text: string;
+  timestamp: number;
+  isToolOutput?: boolean;
 }
 
 export interface AppContextType {
@@ -104,16 +144,14 @@ export interface AppContextType {
   toggleTask: (id: number) => void;
   deleteTask: (id: number) => void;
   
-  // Social Feed
   posts: FeedPost[];
   addPost: (content: string, tag: string) => void;
   deletePost: (id: number) => void;
   toggleLike: (id: number) => void;
   addComment: (postId: number, text: string) => void;
 
-  // Direct Messaging
   friends: Friend[];
-  directMessages: Record<string, DirectMessage[]>; // keyed by Friend ID
+  directMessages: Record<string, DirectMessage[]>;
   sendDirectMessage: (friendId: string, text: string) => void;
 
   preferences: CompanionPreferences;
@@ -121,12 +159,16 @@ export interface AppContextType {
   
   isVoiceActive: boolean;
   setVoiceActive: (active: boolean) => void;
-}
 
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'model';
-  text: string;
-  timestamp: number;
-  isToolOutput?: boolean;
+  focusState: FocusState;
+  startFocusMode: (taskId: number | null, minutes: number) => void;
+  stopFocusMode: (completed: boolean) => void;
+  
+  // Growth System
+  egoEvolution: EgoEvolutionState;
+  activateDevourMode: (stat: keyof EgoStats) => void;
+  activateSkillAwakening: (skill: string) => Promise<void>;
+  toggleEgoTask: (taskId: string) => void;
+  submitTestAnswer: (answer: string) => Promise<void>;
+  cancelDevourMode: () => void;
 }

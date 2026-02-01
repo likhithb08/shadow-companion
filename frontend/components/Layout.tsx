@@ -18,13 +18,14 @@ import {
   FileText,
   GitBranch,
   BarChart2,
-  Newspaper
+  Newspaper,
+  Target
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLiveSession } from '../hooks/useLiveSession';
-import { useBehaviorAnalysis } from '../hooks/useBehaviorAnalysis'; // Import Hook
+import { useBehaviorAnalysis } from '../hooks/useBehaviorAnalysis';
 import { Visualizer } from './Visualizer';
-import { FocusMode } from './FocusMode'; // Import Component
+import { FocusMode } from './FocusMode';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -32,51 +33,42 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
-  
-  // Global Voice State from Context
   const { isVoiceActive, setVoiceActive, user, logout } = useApp();
-  
-  // Initialize session at the Layout level so it persists across route changes
   const { status, volume } = useLiveSession(isVoiceActive);
   
-  // Activate Behavior Analysis Globally
   useBehaviorAnalysis();
 
   const desktopNavItems = [
     { icon: Terminal, label: 'COMMAND', path: '/' },
+    { icon: Target, label: 'EVOLUTION', path: '/evolution' },
     { icon: FileText, label: 'INTEL', path: '/intel' },
     { icon: Users, label: 'NETWORK', path: '/network' },
     { icon: GitBranch, label: 'MISSIONS', path: '/missions' },
+    { icon: SettingsIcon, label: 'SETTINGS', path: '/settings' },
     { icon: CheckSquare, label: 'TASKS', path: '/tasks' },
+    { icon: Newspaper, label: 'AI UPDATES', path: '/updates' },
     { icon: Brain, label: 'FOCUS MODE', path: '/focus' },
     { icon: BarChart2, label: 'BEHAVIOR', path: '/behavior' },
     { icon: Mic, label: 'VOICE CONSOLE', path: '/voice' },
-    { icon: SettingsIcon, label: 'SETTINGS', path: '/settings' }
   ];
 
-  // Mobile Nav
   const mobileNavItems = [
+    { icon: Target, label: 'EVO', path: '/evolution' },
     { icon: FileText, label: 'INTEL', path: '/intel' }, 
     { icon: Brain, label: 'FOCUS', path: '/focus' },
     { icon: CheckSquare, label: 'TASKS', path: '/tasks' }, 
-    { icon: SettingsIcon, label: 'CONFIG', path: '/settings' }, 
     { icon: User, label: 'HOME', path: '/' },
   ];
 
   return (
     <div className="min-h-screen bg-shadow-950 text-shadow-100 font-sans flex overflow-hidden pb-20 md:pb-0 relative selection:bg-accent-500/30 selection:text-accent-400">
       
-      {/* Focus Mode Overlay */}
       <FocusMode />
 
-      {/* Background Tech Grid */}
       <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-20 pointer-events-none z-0" />
       <div className="absolute inset-0 bg-gradient-to-b from-shadow-950 via-transparent to-shadow-950 z-0 opacity-80 pointer-events-none" />
 
-      {/* Desktop Sidebar / HUD Left Panel */}
       <aside className="hidden md:flex flex-col w-72 bg-shadow-950/80 backdrop-blur-xl border-r border-shadow-800 p-4 z-10 relative">
-        
-        {/* Logo / Status Header */}
         <div className="flex items-center gap-3 mb-6 px-2 group cursor-default shrink-0">
             <div className="w-10 h-10 relative flex items-center justify-center">
                 <div className="absolute inset-0 border-2 border-accent-500 rounded-lg transform rotate-45 group-hover:rotate-90 transition-transform duration-700 opacity-50"></div>
@@ -89,7 +81,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
         </div>
 
-        {/* User Profile Snippet */}
         <div className="mb-6 px-4 py-3 bg-shadow-900/50 border border-shadow-800 rounded clip-corner-tr flex items-center justify-between shrink-0">
            <div>
                <p className="text-[9px] text-shadow-500 uppercase tracking-widest">Operator</p>
@@ -104,7 +95,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
            </button>
         </div>
 
-        {/* Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar pr-2">
             {desktopNavItems.map((item) => {
                 const isActive = location.pathname === item.path;
@@ -129,11 +119,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             })}
         </nav>
 
-        {/* Voice Status / Mini HUD */}
         <div className="mt-4 pt-4 border-t border-shadow-800/50 shrink-0">
             <div className="clip-hud bg-shadow-900/50 border border-shadow-800 p-1">
                 <div className="bg-black/40 p-3 relative overflow-hidden">
-                    {/* Decorative Lines */}
                     <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent-500/50" />
                     <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent-500/50" />
 
@@ -156,9 +144,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         </button>
                     </div>
                     
-                    {/* Visualizer Container */}
                     <div className="h-16 w-full bg-shadow-950 border border-shadow-800/50 relative overflow-hidden">
-                         {/* Grid Overlay on Visualizer */}
                         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,18,18,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 pointer-events-none bg-[length:100%_4px,6px_100%]" />
                         <Visualizer isActive={isVoiceActive} volume={volume} />
                     </div>
@@ -167,14 +153,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10">
           <div className="max-w-6xl mx-auto p-4 md:p-8 pb-28 md:pb-8">
               {children}
           </div>
       </main>
 
-      {/* Mobile Bottom Nav (Cyberpunk Style) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-shadow-950/95 backdrop-blur-xl border-t border-shadow-800 flex items-center justify-around px-2 py-3 z-50 safe-area-bottom">
           {mobileNavItems.map((item) => {
                const isActive = location.pathname === item.path;
@@ -184,47 +168,3 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                        to={item.path}
                        className={`flex flex-col items-center gap-1 p-2 rounded transition-colors ${
                            isActive ? 'text-accent-400' : 'text-shadow-500'
-                       }`}
-                   >
-                       <div className={`p-1 rounded ${isActive ? 'bg-accent-500/10' : ''}`}>
-                         <item.icon size={20} className={isActive ? 'animate-pulse' : ''} strokeWidth={2} />
-                       </div>
-                       <span className="text-[9px] font-bold tracking-wider">{item.label}</span>
-                   </Link>
-               )
-          })}
-          
-          {/* Hexagon Floating Button for Mobile */}
-          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
-             <div className="relative w-16 h-16 group">
-                <button
-                    onClick={() => setVoiceActive(!isVoiceActive)}
-                    className={`w-16 h-16 clip-hud flex items-center justify-center transition-all duration-300 ${
-                        isVoiceActive 
-                        ? 'bg-red-600 text-white shadow-[0_0_30px_#dc2626]' 
-                        : 'bg-shadow-800 border-2 border-accent-500/30 text-accent-400 hover:border-accent-400 hover:bg-shadow-700'
-                    }`}
-                >
-                    {isVoiceActive ? <MicOff size={24} /> : <Mic size={24} />}
-                </button>
-                {/* Rotating Ring */}
-                {isVoiceActive && (
-                    <div className="absolute -inset-2 border border-red-500/30 rounded-full animate-spin-slow pointer-events-none" />
-                )}
-             </div>
-          </div>
-      </nav>
-      
-      {/* Mobile Logout (Floating Top Right) */}
-      <div className="md:hidden fixed top-4 right-4 z-50">
-           <button 
-             onClick={logout}
-             className="bg-shadow-900/80 backdrop-blur text-shadow-400 border border-shadow-700 p-2 rounded-full hover:text-red-400 hover:border-red-500 transition-colors"
-           >
-               <LogOut size={16} />
-           </button>
-      </div>
-
-    </div>
-  );
-};

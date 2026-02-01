@@ -9,6 +9,7 @@ import { Productivity } from './pages/Productivity';
 import { Automation } from './pages/Automation';
 import { Settings } from './pages/Settings';
 import { FocusHub } from './pages/FocusHub';
+import { Evolution } from './pages/Evolution';
 import { Login } from './pages/Login';
 import { AppProvider, useApp } from './context/AppContext';
 
@@ -53,11 +54,8 @@ const AppRoutes: React.FC = () => {
             <Route path="/voice" element={
                 <ProtectedRoute><Companion /></ProtectedRoute>
             } />
-            <Route path="/feed" element={
-                <ProtectedRoute><Feed /></ProtectedRoute>
-            } />
-            <Route path="/productivity" element={
-                <ProtectedRoute><Productivity /></ProtectedRoute>
+            <Route path="/evolution" element={
+                <ProtectedRoute><Evolution /></ProtectedRoute>
             } />
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
